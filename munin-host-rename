@@ -24,7 +24,7 @@ GROUP=$1 ; HOST=$2 ; HOSTNEW=$3
 if [ $# -ne  3 ]; then
     echo "Usage: $0 <Hostgroup> <Old-Hostname> <New-Hostname>"
     echo "munin-host-rename - Rename a munin host."
-    echo "You need sudo privileges and should disable munin-cron."
+    echo "You need su privileges and should disable munin-cron."
     exit 100
 fi
 
@@ -85,8 +85,8 @@ fi
 
 # Should be run as a user, which is able to execute munin scripts
 # as munin user.
-if [ "`sudo -u munin echo`" ] ; then
-    echo 'Cannot execute command, need sudo privileges for user munin: sudo -u munin echo'
+if [ "`su -u munin -c echo`" ] ; then
+    echo 'Cannot execute command, need su privileges for user munin: su -u munin echo'
     echo $?
     exit 102
 fi
@@ -130,7 +130,7 @@ done
 
 
 ###### RENAME
-echo "02 - Renaming rrd files in: ${DIR}"
+echo "02 - Renaming rrd files in: ${RRDDIR}"
 for i in `find $RRDDIR -iname "${HOST}-*.rrd"` ; do
     new=`echo ${i}|sed -e "s/${HOST}/${HOSTNEW}/"`
     if [ -e $new ] ; then
@@ -151,16 +151,16 @@ done
 
 ##### RUN MUNIN-UPDATE, MUNIN-GRAH AND MUNIN-HTML AS MUNIN USER
 echo "04 - Running munin-graph for ${HOSTNEW}"
-sudo -u munin /usr/share/munin/munin-update
-check_rc "E4 - Cannot run munin-update as munin user (needs sudo privileges)."
+su -u munin -c /usr/share/munin/munin-update
+check_rc "E4 - Cannot run munin-update as munin user (needs su privileges)."
 
 echo "05 - Running munin-graph"
-sudo -u munin /usr/share/munin/munin-graph --force --host ${HOSTNEW} --week --month --year
-check_rc "E5 - Cannot run munin-graph as munin user (needs sudo privileges)."
+su -u munin -c /usr/share/munin/munin-graph --force --host ${HOSTNEW} --week --month --year
+check_rc "E5 - Cannot run munin-graph as munin user (needs su privileges)."
 
 echo "06 - Running munin-html"
-sudo -u munin /usr/share/munin/munin-html 
-check_rc "E6 - Cannot run munin-html as munin user (needs sudo privileges)."
+su -u munin -c /usr/share/munin/munin-html 
+check_rc "E6 - Cannot run munin-html as munin user (needs su privileges)."
 
 ###### SUCCESS
 echo "Successfully renamed the host. New hostname: ${HOSTNEW}"
