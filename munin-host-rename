@@ -85,8 +85,8 @@ fi
 
 # Should be run as a user, which is able to execute munin scripts
 # as munin user.
-if [ "`su -u munin -c echo`" ] ; then
-    echo 'Cannot execute command, need su privileges for user munin: su -u munin echo'
+if [ "`su -l munin -c echo`" ] ; then
+    echo 'Cannot execute command, need su privileges for user munin: su -l munin echo'
     echo $?
     exit 102
 fi
@@ -151,15 +151,15 @@ done
 
 ##### RUN MUNIN-UPDATE, MUNIN-GRAH AND MUNIN-HTML AS MUNIN USER
 echo "04 - Running munin-graph for ${HOSTNEW}"
-su -u munin -c /usr/share/munin/munin-update
+su -l munin -c /usr/share/munin/munin-update
 check_rc "E4 - Cannot run munin-update as munin user (needs su privileges)."
 
 echo "05 - Running munin-graph"
-su -u munin -c /usr/share/munin/munin-graph --force --host ${HOSTNEW} --week --month --year
+su -l munin -c /usr/share/munin/munin-graph --force --host ${HOSTNEW} --week --month --year
 check_rc "E5 - Cannot run munin-graph as munin user (needs su privileges)."
 
 echo "06 - Running munin-html"
-su -u munin -c /usr/share/munin/munin-html 
+su -l munin -c /usr/share/munin/munin-html 
 check_rc "E6 - Cannot run munin-html as munin user (needs su privileges)."
 
 ###### SUCCESS
